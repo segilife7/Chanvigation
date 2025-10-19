@@ -1,248 +1,343 @@
-import React, { useState, useEffect } from "react";
-
-export default function DigitalBalanceApp() {
-  const [activePage, setActivePage] = useState("home");
-  const [usageTime, setUsageTime] = useState(0);
-  const [alarms, setAlarms] = useState([]);
-  const [alarmInput, setAlarmInput] = useState("");
-  const [chat, setChat] = useState([]);
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    const interval = setInterval(() => setUsageTime((prev) => prev + 1), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const addAlarm = () => {
-    if (alarmInput) {
-      setAlarms([...alarms, alarmInput]);
-      setAlarmInput("");
-      alert(`스트레칭 알람이 ${alarmInput}에 설정되었습니다.`);
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>디지털 밸런스 · Vanilla JS</title>
+  <style>
+    :root{
+      --mint-50:#f0fffb; --mint-100:#d9fff6; --mint-200:#bdf5ea; --mint-300:#89e7d6; --mint-400:#48d2bd; --mint-500:#19b7a1;
+      --blue-50:#eef6ff; --blue-100:#d8ebff; --blue-300:#7ab7ff; --blue-400:#4b9dff; --blue-600:#2563eb;
+      --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-400:#9ca3af; --gray-600:#4b5563; --gray-800:#1f2937;
+      --radius-xl:1.25rem; --radius-lg:0.875rem; --shadow:0 12px 28px rgba(16,24,40,.08);
     }
-  };
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,맑은 고딕,Apple Color Emoji,Noto Color Emoji,sans-serif;line-height:1.5;background:linear-gradient(180deg,var(--mint-50),#fff)}
+    .app{max-width:420px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column}
+    header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;color:#fff;background:linear-gradient(90deg,var(--blue-400),var(--mint-400));border-bottom-left-radius:1rem;border-bottom-right-radius:1rem;box-shadow:0 8px 24px rgba(37,99,235,.18)}
+    header h1{margin:0;font-size:20px}
+    header .usage{font-size:12px;opacity:.95}
+    main{flex:1;overflow:auto;padding:16px}
+    .card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-xl);box-shadow:var(--shadow)}
+    .pad{padding:18px}
+    .center{text-align:center}
+    .muted{color:var(--gray-600);font-size:14px}
+    .title{font-weight:800;color:var(--gray-800)}
+    .btn{appearance:none;border:0;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,var(--blue-400),var(--mint-400));color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.25)}
+    .btn-plain{background:#f3f7ff;color:#1e3a8a}
+    .row{display:flex;gap:10px;align-items:center}
+    .row-wrap{display:flex;flex-wrap:wrap;gap:12px}
+    .field{width:100%;padding:10px 12px;border:2px solid var(--mint-200);border-radius:12px}
+    .tag{display:inline-flex;align-items:center;gap:6px;background:var(--mint-50);border:1px solid var(--mint-200);color:#0f766e;padding:6px 10px;border-radius:999px}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:6px 10px;border-radius:12px}
+    .list{margin:0;padding-left:18px}
+    .list li{margin:6px 0;color:var(--gray-600)}
 
-  const sendMessage = () => {
-    if (message.trim() === "") return;
-    const newChat = [...chat, { from: "user", text: message }];
-    setChat(newChat);
-    setMessage("");
-    setTimeout(() => {
-      setChat([...newChat, { from: "bot", text: "오늘도 수고했어요 🌿 마음이 답답할 때는 잠깐 심호흡을 해보세요." }]);
-    }, 800);
-  };
+    /* Home */
+    .home-emoji{width:88px;height:88px;border-radius:999px;background:linear-gradient(90deg,var(--blue-400),var(--mint-400));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 28px rgba(16,185,129,.28);margin:0 auto 10px}
+    .usage-big{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:34px;color:#0ea5a4}
 
-  const stretches = {
-    wrist: [
-      "양 팔을 앞으로 쭉 뻗고 손바닥을 아래로 향하게 합니다.",
-      "한 손으로 반대 손가락을 잡아 천천히 몸 쪽으로 당겨줍니다.",
-      "손목 안쪽 근육이 늘어나는 느낌이 들면 15초간 유지합니다.",
-      "반대 손도 동일하게 반복합니다."
-    ],
-    neck: [
-      "바르게 앉은 상태에서 어깨를 내리고 고개를 천천히 오른쪽으로 기울입니다.",
-      "손으로 머리를 살짝 눌러 목 옆 근육을 스트레칭합니다.",
-      "15초 유지 후 왼쪽도 동일하게 반복합니다.",
-      "마지막으로 고개를 앞뒤로 천천히 돌려 근육을 풀어줍니다."
-    ],
-    shoulder: [
-      "한쪽 팔을 가슴 앞으로 가져와 반대손으로 팔꿈치를 감싸줍니다.",
-      "팔을 몸 쪽으로 천천히 당기며 어깨 뒤쪽 근육을 스트레칭합니다.",
-      "15초간 유지 후 반대쪽도 반복합니다.",
-      "끝으로 양팔을 뒤로 깍지 끼고 가슴을 열어줍니다."
-    ]
-  };
+    /* Stretch guide cards */
+    .guide-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .guide{border:2px solid var(--mint-200);border-radius:18px}
+    .guide h3{margin:0 0 6px;color:var(--blue-600)}
 
-  const renderPage = () => {
-    switch (activePage) {
-      case "stretchAlarm":
-        return (
-          <div className="p-5">
-            <h2 className="text-xl font-bold text-mint-600 mb-3">스트레칭 알람 설정</h2>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="time"
-                value={alarmInput}
-                onChange={(e) => setAlarmInput(e.target.value)}
-                className="border-2 border-mint-300 focus:border-blue-400 rounded-lg p-2 w-2/3"
-              />
-              <button
-                onClick={addAlarm}
-                className="bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-2 rounded-lg shadow-md"
-              >
-                추가
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {alarms.length === 0 ? (
-                <li className="text-gray-400">⏰ 설정된 알람이 없습니다.</li>
-              ) : (
-                alarms.map((a, i) => <li key={i}>⏰ {a}</li>)
-              )}
-            </ul>
-          </div>
-        );
-      case "stretchGuide":
-        return (
-          <div className="p-5">
-            <h2 className="text-xl font-bold text-blue-600 mb-4">효과적인 스트레칭 방법</h2>
-            <div className="grid grid-cols-1 gap-3">
-              {Object.entries(stretches).map(([key, steps]) => (
-                <div key={key} className="bg-white border-2 border-mint-200 rounded-2xl shadow-md p-4">
-                  <h3 className="font-semibold text-lg text-blue-600 mb-2">
-                    {key === "wrist" ? "손목 스트레칭" : key === "neck" ? "목 스트레칭" : "어깨 스트레칭"}
-                  </h3>
-                  <ul className="list-disc list-inside text-gray-600">
-                    {steps.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case "pomodoro":
-        return <PomodoroTimer />;
-      case "aiChat":
-        return (
-          <div className="p-4">
-            <h2 className="text-xl font-bold text-blue-600 mb-2">AI 정신 상담</h2>
-            <div className="bg-gray-50 border rounded-xl h-60 overflow-y-auto p-3 mb-2 shadow-inner">
-              {chat.map((c, i) => (
-                <div key={i} className={`mb-1 ${c.from === "user" ? "text-right" : "text-left text-gray-700"}`}>
-                  <span className={`inline-block px-3 py-1 rounded-2xl ${c.from === "user" ? "bg-blue-400 text-white" : "bg-mint-200"}`}>
-                    {c.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="border-2 border-mint-300 rounded-lg p-2 flex-grow"
-                placeholder="지금 기분이 어때요?"
-              />
-              <button onClick={sendMessage} className="bg-blue-400 text-white px-3 py-2 rounded-lg">
-                전송
-              </button>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="text-center py-10">
-            <div className="flex flex-col items-center mb-6">
-              <div className="w-24 h-24 bg-gradient-to-r from-blue-400 to-mint-400 rounded-full shadow-lg flex items-center justify-center text-white text-3xl font-bold animate-pulse">
-                🌱
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-blue-600 mb-2">오늘 사용시간</h2>
-            <p className="text-4xl font-mono text-mint-500 mb-2">{usageTime}s</p>
-            <p className="text-gray-600">디지털 밸런스로 건강한 하루를 만들어보세요 💫</p>
-          </div>
-        );
-    }
-  };
+    /* Chat */
+    .chat-box{height:240px;overflow:auto;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:16px;padding:10px;box-shadow:inset 0 1px 6px rgba(0,0,0,.04)}
+    .bubble{display:inline-block;padding:8px 12px;border-radius:18px;margin:4px 0}
+    .from-user{background:var(--blue-400);color:#fff}
+    .from-bot{background:var(--mint-100);color:#065f46}
+    .right{text-align:right}
 
-  return (
-    <div className="max-w-sm mx-auto bg-gradient-to-b from-blue-50 to-mint-50 rounded-3xl shadow-lg h-[90vh] flex flex-col justify-between overflow-hidden">
-      <header className="flex justify-between items-center bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-3 rounded-b-3xl shadow-md">
-        <h1 className="text-xl font-bold">디지털 밸런스</h1>
-        <span className="text-sm">⏱ {usageTime}s</span>
-      </header>
+    /* Pomodoro */
+    .circle-wrap{position:relative;width:220px;height:220px;margin:0 auto 10px}
+    .circle-wrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+    .circle-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 
-      <main className="flex-grow overflow-y-auto">{renderPage()}</main>
+    /* Bottom nav */
+    nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--gray-200);padding:8px 6px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    nav button{background:#fff;border:0;border-radius:12px;padding:8px 6px;color:var(--gray-600);font-weight:700}
+    nav button.active{background:var(--mint-50);border:1px solid var(--mint-200);color:#0f766e}
 
-      <nav className="grid grid-cols-4 bg-white border-t-2 border-mint-200 text-center py-2">
-        <button onClick={() => setActivePage("stretchAlarm")} className="text-blue-500 hover:text-blue-700 text-sm">
-          알람
-        </button>
-        <button onClick={() => setActivePage("stretchGuide")} className="text-blue-500 hover:text-blue-700 text-sm">
-          스트레칭
-        </button>
-        <button onClick={() => setActivePage("pomodoro")} className="text-blue-500 hover:text-blue-700 text-sm">
-          타이머
-        </button>
-        <button onClick={() => setActivePage("aiChat")} className="text-blue-500 hover:text-blue-700 text-sm">
-          상담
-        </button>
-      </nav>
-    </div>
-  );
-}
+    @media (min-width:480px){ main{padding:22px} }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <h1>디지털 밸런스</h1>
+      <span class="usage" id="usageHeader">⏱ 0s</span>
+    </header>
 
-function PomodoroTimer() {
-  const [customMinutes, setCustomMinutes] = useState(25);
-  const [time, setTime] = useState(customMinutes * 60);
-  const [isRunning, setIsRunning] = useState(false);
-
-  useEffect(() => {
-    let timer;
-    if (isRunning) {
-      timer = setInterval(() => {
-        setTime((t) => (t > 0 ? t - 1 : 0));
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isRunning]);
-
-  useEffect(() => setTime(customMinutes * 60), [customMinutes]);
-
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  const percent = (time / (customMinutes * 60)) * 100;
-
-  return (
-    <div className="text-center p-4 flex flex-col items-center">
-      <h2 className="text-xl font-bold text-mint-600 mb-4">포모도로 타이머</h2>
-
-      <div className="relative w-52 h-52 mb-4">
-        <svg className="absolute top-0 left-0 w-full h-full rotate-[-90deg]">
-          <circle cx="104" cy="104" r="100" stroke="#e0f7fa" strokeWidth="8" fill="none" />
-          <circle
-            cx="104"
-            cy="104"
-            r="100"
-            stroke="#3b82f6"
-            strokeWidth="10"
-            fill="none"
-            strokeDasharray={2 * Math.PI * 100}
-            strokeDashoffset={(2 * Math.PI * 100 * (100 - percent)) / 100}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-mono text-blue-600">
-            {minutes}:{seconds.toString().padStart(2, "0")}
-          </span>
-          <span className="text-gray-500 text-sm mt-1">{Math.round(percent)}%</span>
+    <main>
+      <!-- HOME -->
+      <section id="page-home" class="page">
+        <div class="center" style="margin:6px 0 14px">
+          <div class="home-emoji">🌱</div>
+          <h2 class="title" style="margin:6px 0">오늘 사용시간</h2>
+          <div class="usage-big" id="usageBig">0s</div>
+          <p class="muted">디지털 밸런스로 건강한 하루를 만들어보세요 💫</p>
         </div>
-      </div>
+      </section>
 
-      <div className="flex justify-center gap-2 mb-3">
-        <input
-          type="number"
-          min="1"
-          max="60"
-          value={customMinutes}
-          onChange={(e) => setCustomMinutes(Number(e.target.value))}
-          className="w-16 border-2 border-mint-300 rounded-lg text-center"
-        />
-        <span className="text-gray-600">분</span>
-      </div>
-      <div className="space-x-2">
-        <button
-          onClick={() => setIsRunning(!isRunning)}
-          className="bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-2 rounded-lg shadow-md"
-        >
-          {isRunning ? "일시정지" : "시작"}
-        </button>
-        <button onClick={() => setTime(customMinutes * 60)} className="bg-gray-200 px-4 py-2 rounded-lg">
-          초기화
-        </button>
-      </div>
-    </div>
-  );
-}
+      <!-- 알람 설정 -->
+      <section id="page-stretchAlarm" class="page" hidden>
+        <div class="card pad">
+          <h2 class="title" style="color:#0ea5a4;margin-bottom:10px">스트레칭 알람 설정</h2>
+          <div class="row" style="margin-bottom:10px">
+            <input id="alarmInput" type="time" class="field" style="flex:1" />
+            <button id="addAlarmBtn" class="btn btn-primary">추가</button>
+          </div>
+          <ul id="alarmList" class="list"></ul>
+          <p id="noAlarm" class="muted" style="margin-top:6px">⏰ 설정된 알람이 없습니다.</p>
+        </div>
+      </section>
+
+      <!-- 스트레칭 가이드 -->
+      <section id="page-stretchGuide" class="page" hidden>
+        <h2 class="title" style="color:#2563eb;margin:8px 0 12px">효과적인 스트레칭 방법</h2>
+        <div class="guide-grid" id="guideGrid"></div>
+      </section>
+
+      <!-- 포모도로 타이머 -->
+      <section id="page-pomodoro" class="page" hidden>
+        <div class="center card pad">
+          <h2 class="title" style="color:#0ea5a4;margin-bottom:10px">포모도로 타이머</h2>
+          <div class="circle-wrap">
+            <svg width="220" height="220">
+              <circle cx="110" cy="110" r="100" stroke="#e0f7fa" stroke-width="10" fill="none"></circle>
+              <circle id="pomoArc" cx="110" cy="110" r="100" stroke="#3b82f6" stroke-width="12" fill="none" stroke-linecap="round"></circle>
+            </svg>
+            <div class="circle-time">
+              <div id="pomoTime" style="font:700 24px ui-monospace,Menlo,Consolas,monospace;color:#2563eb">25:00</div>
+              <div id="pomoPercent" class="muted" style="margin-top:4px">100%</div>
+            </div>
+          </div>
+          <div class="row center" style="justify-content:center;margin:8px 0 10px">
+            <input id="pomoMinutes" type="number" min="1" max="60" value="25" class="field" style="width:72px;text-align:center" />
+            <span class="muted">분</span>
+          </div>
+          <div class="row center" style="justify-content:center">
+            <button id="pomoToggle" class="btn btn-primary">시작</button>
+            <button id="pomoReset" class="btn btn-plain">초기화</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI 상담 -->
+      <section id="page-aiChat" class="page" hidden>
+        <div class="pad">
+          <h2 class="title" style="color:#2563eb;margin-bottom:8px">AI 정신 상담</h2>
+          <div id="chatBox" class="chat-box card"></div>
+          <div class="row" style="margin-top:10px">
+            <input id="chatInput" type="text" class="field" placeholder="지금 기분이 어때요?" />
+            <button id="chatSend" class="btn btn-primary">전송</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav>
+      <button data-page="home" class="active">알림판</button>
+      <button data-page="stretchGuide">스트레칭</button>
+      <button data-page="pomodoro">타이머</button>
+      <button data-page="stretchAlarm">알람</button>
+      <button data-page="aiChat">상담</button>
+    </nav>
+  </div>
+
+  <script>
+    // ------- 상태 -------
+    const state = {
+      activePage: 'home',
+      usageTime: 0, // seconds
+      alarms: [],
+      chat: [],
+      pomo: { minutes: 25, time: 25*60, running: false, interval: null }
+    };
+
+    // ------- 공통 DOM -------
+    const usageHeader = document.getElementById('usageHeader');
+    const usageBig = document.getElementById('usageBig');
+
+    // ------- 사용시간 타이머 -------
+    setInterval(() => { state.usageTime += 1; renderHeader(); if(state.activePage==='home') renderHome(); }, 1000);
+
+    function formatTime(sec){
+      const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+      if(h>0) return `${h}h ${m}m ${s}s`;
+      if(m>0) return `${m}m ${s}s`;
+      return `${s}s`;
+    }
+
+    function renderHeader(){ usageHeader.textContent = `⏱ ${state.usageTime}s`; }
+    function renderHome(){ usageBig.textContent = formatTime(state.usageTime); }
+
+    // ------- 네비게이션 -------
+    document.querySelectorAll('nav button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const page = btn.dataset.page;
+        if(!page) return;
+        state.activePage = page;
+        document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b===btn));
+        document.querySelectorAll('.page').forEach(sec=>sec.hidden = (sec.id !== `page-${page}`));
+        // 섹션별 초기 렌더
+        if(page==='stretchGuide') renderStretchGuide();
+        if(page==='stretchAlarm') renderAlarm();
+        if(page==='aiChat') renderChat();
+        if(page==='pomodoro') renderPomodoro(true);
+        if(page==='home') renderHome();
+      })
+    });
+
+    // ------- 알람 -------
+    const alarmInput = document.getElementById('alarmInput');
+    const addAlarmBtn = document.getElementById('addAlarmBtn');
+    const alarmList = document.getElementById('alarmList');
+    const noAlarm = document.getElementById('noAlarm');
+
+    addAlarmBtn.addEventListener('click',()=>{
+      if(!alarmInput.value) return;
+      state.alarms.push(alarmInput.value);
+      alert(`스트레칭 알람이 ${alarmInput.value}에 설정되었습니다.`);
+      alarmInput.value='';
+      renderAlarm();
+    });
+
+    function renderAlarm(){
+      alarmList.innerHTML = '';
+      if(state.alarms.length===0){ noAlarm.style.display='block'; return; }
+      noAlarm.style.display='none';
+      state.alarms.forEach((a, i)=>{
+        const li=document.createElement('li');
+        li.textContent = `⏰ ${a}`;
+        alarmList.appendChild(li);
+      })
+    }
+
+    // ------- 스트레칭 가이드 -------
+    const stretches = {
+      wrist:[
+        '양 팔을 앞으로 쭉 뻗고 손바닥을 아래로 향하게 합니다.',
+        '한 손으로 반대 손가락을 잡아 천천히 몸 쪽으로 당겨줍니다.',
+        '손목 안쪽 근육이 늘어나는 느낌이 들면 15초간 유지합니다.',
+        '반대 손도 동일하게 반복합니다.'
+      ],
+      neck:[
+        '바르게 앉은 상태에서 어깨를 내리고 고개를 천천히 오른쪽으로 기울입니다.',
+        '손으로 머리를 살짝 눌러 목 옆 근육을 스트레칭합니다.',
+        '15초 유지 후 왼쪽도 동일하게 반복합니다.',
+        '마지막으로 고개를 앞뒤로 천천히 돌려 근육을 풀어줍니다.'
+      ],
+      shoulder:[
+        '한쪽 팔을 가슴 앞으로 가져와 반대손으로 팔꿈치를 감싸줍니다.',
+        '팔을 몸 쪽으로 천천히 당기며 어깨 뒤쪽 근육을 스트레칭합니다.',
+        '15초간 유지 후 반대쪽도 반복합니다.',
+        '끝으로 양팔을 뒤로 깍지 끼고 가슴을 열어줍니다.'
+      ]
+    };
+
+    function renderStretchGuide(){
+      const grid=document.getElementById('guideGrid');
+      if(grid.dataset.rendered==='1') return; // 1회만 생성
+      const entries = [ ['손목 스트레칭','wrist'], ['목 스트레칭','neck'], ['어깨 스트레칭','shoulder'] ];
+      entries.forEach(([label,key])=>{
+        const card=document.createElement('div');
+        card.className='guide card pad';
+        const h=document.createElement('h3'); h.textContent=label; card.appendChild(h);
+        const ul=document.createElement('ul'); ul.className='list';
+        stretches[key].forEach(s=>{ const li=document.createElement('li'); li.textContent=s; ul.appendChild(li); })
+        card.appendChild(ul);
+        grid.appendChild(card);
+      });
+      grid.dataset.rendered='1';
+    }
+
+    // ------- 채팅 -------
+    const chatBox = document.getElementById('chatBox');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+
+    chatSend.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(); });
+
+    function sendMessage(){
+      const txt = chatInput.value.trim();
+      if(!txt) return;
+      state.chat.push({from:'user',text:txt});
+      chatInput.value='';
+      renderChat();
+      setTimeout(()=>{
+        state.chat.push({from:'bot', text:'오늘도 수고했어요 🌿 마음이 답답할 때는 잠깐 심호흡을 해보세요.'});
+        renderChat();
+      }, 700);
+    }
+
+    function renderChat(){
+      chatBox.innerHTML='';
+      state.chat.forEach(c=>{
+        const wrap=document.createElement('div');
+        wrap.className = c.from==='user' ? 'right' : '';
+        const b=document.createElement('span');
+        b.className = 'bubble ' + (c.from==='user' ? 'from-user' : 'from-bot');
+        b.textContent = c.text;
+        wrap.appendChild(b);
+        chatBox.appendChild(wrap);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // ------- 포모도로 -------
+    const pomoMinutes = document.getElementById('pomoMinutes');
+    const pomoToggle = document.getElementById('pomoToggle');
+    const pomoReset  = document.getElementById('pomoReset');
+    const pomoTimeEl = document.getElementById('pomoTime');
+    const pomoPercentEl = document.getElementById('pomoPercent');
+    const pomoArc = document.getElementById('pomoArc');
+
+    function setPomoMinutes(m){ state.pomo.minutes=m; state.pomo.time=m*60; updatePomoArc(); renderPomodoro(); }
+
+    pomoMinutes.addEventListener('change',()=>{
+      const val = Math.min(60, Math.max(1, Number(pomoMinutes.value||25)));
+      pomoMinutes.value = val;
+      setPomoMinutes(val);
+    });
+
+    pomoToggle.addEventListener('click',()=>{
+      state.pomo.running = !state.pomo.running;
+      if(state.pomo.running){
+        pomoToggle.textContent='일시정지';
+        state.pomo.interval = setInterval(()=>{
+          state.pomo.time = Math.max(0, state.pomo.time-1);
+          renderPomodoro();
+          if(state.pomo.time===0){ clearInterval(state.pomo.interval); state.pomo.running=false; pomoToggle.textContent='시작'; }
+        },1000);
+      }else{
+        clearInterval(state.pomo.interval); pomoToggle.textContent='시작';
+      }
+    });
+
+    pomoReset.addEventListener('click',()=>{ setPomoMinutes(state.pomo.minutes); if(state.pomo.running){ clearInterval(state.pomo.interval); state.pomo.running=false; pomoToggle.textContent='시작'; } });
+
+    function updatePomoArc(){
+      const r=100, c=2*Math.PI*r;
+      const percent = state.pomo.time/(state.pomo.minutes*60);
+      pomoArc.setAttribute('stroke-dasharray', c);
+      pomoArc.setAttribute('stroke-dashoffset', c*(1-percent));
+    }
+
+    function renderPomodoro(skipArc){
+      const m = Math.floor(state.pomo.time/60), s = state.pomo.time%60;
+      const percent = Math.round((state.pomo.time/(state.pomo.minutes*60))*100);
+      pomoTimeEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
+      pomoPercentEl.textContent = `${percent}%`;
+      if(!skipArc) updatePomoArc();
+    }
+
+    // 초기 렌더
+    renderHeader(); renderHome(); renderStretchGuide(); renderAlarm(); renderChat(); renderPomodoro();
+  </script>
+</body>
+</html>
