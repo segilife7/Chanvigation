@@ -1,0 +1,248 @@
+import React, { useState, useEffect } from "react";
+
+export default function DigitalBalanceApp() {
+  const [activePage, setActivePage] = useState("home");
+  const [usageTime, setUsageTime] = useState(0);
+  const [alarms, setAlarms] = useState([]);
+  const [alarmInput, setAlarmInput] = useState("");
+  const [chat, setChat] = useState([]);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => setUsageTime((prev) => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const addAlarm = () => {
+    if (alarmInput) {
+      setAlarms([...alarms, alarmInput]);
+      setAlarmInput("");
+      alert(`스트레칭 알람이 ${alarmInput}에 설정되었습니다.`);
+    }
+  };
+
+  const sendMessage = () => {
+    if (message.trim() === "") return;
+    const newChat = [...chat, { from: "user", text: message }];
+    setChat(newChat);
+    setMessage("");
+    setTimeout(() => {
+      setChat([...newChat, { from: "bot", text: "오늘도 수고했어요 🌿 마음이 답답할 때는 잠깐 심호흡을 해보세요." }]);
+    }, 800);
+  };
+
+  const stretches = {
+    wrist: [
+      "양 팔을 앞으로 쭉 뻗고 손바닥을 아래로 향하게 합니다.",
+      "한 손으로 반대 손가락을 잡아 천천히 몸 쪽으로 당겨줍니다.",
+      "손목 안쪽 근육이 늘어나는 느낌이 들면 15초간 유지합니다.",
+      "반대 손도 동일하게 반복합니다."
+    ],
+    neck: [
+      "바르게 앉은 상태에서 어깨를 내리고 고개를 천천히 오른쪽으로 기울입니다.",
+      "손으로 머리를 살짝 눌러 목 옆 근육을 스트레칭합니다.",
+      "15초 유지 후 왼쪽도 동일하게 반복합니다.",
+      "마지막으로 고개를 앞뒤로 천천히 돌려 근육을 풀어줍니다."
+    ],
+    shoulder: [
+      "한쪽 팔을 가슴 앞으로 가져와 반대손으로 팔꿈치를 감싸줍니다.",
+      "팔을 몸 쪽으로 천천히 당기며 어깨 뒤쪽 근육을 스트레칭합니다.",
+      "15초간 유지 후 반대쪽도 반복합니다.",
+      "끝으로 양팔을 뒤로 깍지 끼고 가슴을 열어줍니다."
+    ]
+  };
+
+  const renderPage = () => {
+    switch (activePage) {
+      case "stretchAlarm":
+        return (
+          <div className="p-5">
+            <h2 className="text-xl font-bold text-mint-600 mb-3">스트레칭 알람 설정</h2>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="time"
+                value={alarmInput}
+                onChange={(e) => setAlarmInput(e.target.value)}
+                className="border-2 border-mint-300 focus:border-blue-400 rounded-lg p-2 w-2/3"
+              />
+              <button
+                onClick={addAlarm}
+                className="bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-2 rounded-lg shadow-md"
+              >
+                추가
+              </button>
+            </div>
+            <ul className="space-y-2">
+              {alarms.length === 0 ? (
+                <li className="text-gray-400">⏰ 설정된 알람이 없습니다.</li>
+              ) : (
+                alarms.map((a, i) => <li key={i}>⏰ {a}</li>)
+              )}
+            </ul>
+          </div>
+        );
+      case "stretchGuide":
+        return (
+          <div className="p-5">
+            <h2 className="text-xl font-bold text-blue-600 mb-4">효과적인 스트레칭 방법</h2>
+            <div className="grid grid-cols-1 gap-3">
+              {Object.entries(stretches).map(([key, steps]) => (
+                <div key={key} className="bg-white border-2 border-mint-200 rounded-2xl shadow-md p-4">
+                  <h3 className="font-semibold text-lg text-blue-600 mb-2">
+                    {key === "wrist" ? "손목 스트레칭" : key === "neck" ? "목 스트레칭" : "어깨 스트레칭"}
+                  </h3>
+                  <ul className="list-disc list-inside text-gray-600">
+                    {steps.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case "pomodoro":
+        return <PomodoroTimer />;
+      case "aiChat":
+        return (
+          <div className="p-4">
+            <h2 className="text-xl font-bold text-blue-600 mb-2">AI 정신 상담</h2>
+            <div className="bg-gray-50 border rounded-xl h-60 overflow-y-auto p-3 mb-2 shadow-inner">
+              {chat.map((c, i) => (
+                <div key={i} className={`mb-1 ${c.from === "user" ? "text-right" : "text-left text-gray-700"}`}>
+                  <span className={`inline-block px-3 py-1 rounded-2xl ${c.from === "user" ? "bg-blue-400 text-white" : "bg-mint-200"}`}>
+                    {c.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="border-2 border-mint-300 rounded-lg p-2 flex-grow"
+                placeholder="지금 기분이 어때요?"
+              />
+              <button onClick={sendMessage} className="bg-blue-400 text-white px-3 py-2 rounded-lg">
+                전송
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="text-center py-10">
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-24 h-24 bg-gradient-to-r from-blue-400 to-mint-400 rounded-full shadow-lg flex items-center justify-center text-white text-3xl font-bold animate-pulse">
+                🌱
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-blue-600 mb-2">오늘 사용시간</h2>
+            <p className="text-4xl font-mono text-mint-500 mb-2">{usageTime}s</p>
+            <p className="text-gray-600">디지털 밸런스로 건강한 하루를 만들어보세요 💫</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="max-w-sm mx-auto bg-gradient-to-b from-blue-50 to-mint-50 rounded-3xl shadow-lg h-[90vh] flex flex-col justify-between overflow-hidden">
+      <header className="flex justify-between items-center bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-3 rounded-b-3xl shadow-md">
+        <h1 className="text-xl font-bold">디지털 밸런스</h1>
+        <span className="text-sm">⏱ {usageTime}s</span>
+      </header>
+
+      <main className="flex-grow overflow-y-auto">{renderPage()}</main>
+
+      <nav className="grid grid-cols-4 bg-white border-t-2 border-mint-200 text-center py-2">
+        <button onClick={() => setActivePage("stretchAlarm")} className="text-blue-500 hover:text-blue-700 text-sm">
+          알람
+        </button>
+        <button onClick={() => setActivePage("stretchGuide")} className="text-blue-500 hover:text-blue-700 text-sm">
+          스트레칭
+        </button>
+        <button onClick={() => setActivePage("pomodoro")} className="text-blue-500 hover:text-blue-700 text-sm">
+          타이머
+        </button>
+        <button onClick={() => setActivePage("aiChat")} className="text-blue-500 hover:text-blue-700 text-sm">
+          상담
+        </button>
+      </nav>
+    </div>
+  );
+}
+
+function PomodoroTimer() {
+  const [customMinutes, setCustomMinutes] = useState(25);
+  const [time, setTime] = useState(customMinutes * 60);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (isRunning) {
+      timer = setInterval(() => {
+        setTime((t) => (t > 0 ? t - 1 : 0));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isRunning]);
+
+  useEffect(() => setTime(customMinutes * 60), [customMinutes]);
+
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  const percent = (time / (customMinutes * 60)) * 100;
+
+  return (
+    <div className="text-center p-4 flex flex-col items-center">
+      <h2 className="text-xl font-bold text-mint-600 mb-4">포모도로 타이머</h2>
+
+      <div className="relative w-52 h-52 mb-4">
+        <svg className="absolute top-0 left-0 w-full h-full rotate-[-90deg]">
+          <circle cx="104" cy="104" r="100" stroke="#e0f7fa" strokeWidth="8" fill="none" />
+          <circle
+            cx="104"
+            cy="104"
+            r="100"
+            stroke="#3b82f6"
+            strokeWidth="10"
+            fill="none"
+            strokeDasharray={2 * Math.PI * 100}
+            strokeDashoffset={(2 * Math.PI * 100 * (100 - percent)) / 100}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-mono text-blue-600">
+            {minutes}:{seconds.toString().padStart(2, "0")}
+          </span>
+          <span className="text-gray-500 text-sm mt-1">{Math.round(percent)}%</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-3">
+        <input
+          type="number"
+          min="1"
+          max="60"
+          value={customMinutes}
+          onChange={(e) => setCustomMinutes(Number(e.target.value))}
+          className="w-16 border-2 border-mint-300 rounded-lg text-center"
+        />
+        <span className="text-gray-600">분</span>
+      </div>
+      <div className="space-x-2">
+        <button
+          onClick={() => setIsRunning(!isRunning)}
+          className="bg-gradient-to-r from-blue-400 to-mint-400 text-white px-4 py-2 rounded-lg shadow-md"
+        >
+          {isRunning ? "일시정지" : "시작"}
+        </button>
+        <button onClick={() => setTime(customMinutes * 60)} className="bg-gray-200 px-4 py-2 rounded-lg">
+          초기화
+        </button>
+      </div>
+    </div>
+  );
+}
