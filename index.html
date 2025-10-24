@@ -1,343 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>디지털 밸런스 · Vanilla JS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>디지털 밸런스 (HTML/CSS/JS)</title>
   <style>
     :root{
-      --mint-50:#f0fffb; --mint-100:#d9fff6; --mint-200:#bdf5ea; --mint-300:#89e7d6; --mint-400:#48d2bd; --mint-500:#19b7a1;
-      --blue-50:#eef6ff; --blue-100:#d8ebff; --blue-300:#7ab7ff; --blue-400:#4b9dff; --blue-600:#2563eb;
-      --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-400:#9ca3af; --gray-600:#4b5563; --gray-800:#1f2937;
-      --radius-xl:1.25rem; --radius-lg:0.875rem; --shadow:0 12px 28px rgba(16,24,40,.08);
+      --blue-50:#eff6ff; --blue-400:#60a5fa; --blue-600:#2563eb;
+      --mint-50:#ecfeff; --mint-200:#a7f3d0; --mint-300:#86efac; --mint-400:#5eead4; --mint-500:#14b8a6;
+      --gray-50:#f9fafb; --gray-200:#e5e7eb; --gray-400:#9ca3af; --gray-600:#4b5563;
+      --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --shadow-inset: inset 0 2px 4px rgb(0 0 0 / 0.06);
+      --radius-3xl: 1.5rem;
     }
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,맑은 고딕,Apple Color Emoji,Noto Color Emoji,sans-serif;line-height:1.5;background:linear-gradient(180deg,var(--mint-50),#fff)}
-    .app{max-width:420px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column}
-    header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;color:#fff;background:linear-gradient(90deg,var(--blue-400),var(--mint-400));border-bottom-left-radius:1rem;border-bottom-right-radius:1rem;box-shadow:0 8px 24px rgba(37,99,235,.18)}
-    header h1{margin:0;font-size:20px}
-    header .usage{font-size:12px;opacity:.95}
-    main{flex:1;overflow:auto;padding:16px}
-    .card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-xl);box-shadow:var(--shadow)}
-    .pad{padding:18px}
+    body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; background:linear-gradient(to bottom,var(--blue-50),var(--mint-50));}
+    .app{max-width:420px; height:90vh; margin:16px auto; border-radius:var(--radius-3xl); box-shadow:var(--shadow-lg); display:flex; flex-direction:column; overflow:hidden; background:linear-gradient(to bottom,var(--blue-50),var(--mint-50));}
+    header{display:flex; justify-content:space-between; align-items:center; padding:12px 16px; color:#fff; background:linear-gradient(to right,var(--blue-400),var(--mint-400)); border-bottom-left-radius:24px; border-bottom-right-radius:24px; box-shadow:0 2px 6px rgba(0,0,0,.08)}
+    header h1{font-size:18px; margin:0}
+    main{flex:1; overflow:auto}
+    .inner{padding:16px}
     .center{text-align:center}
-    .muted{color:var(--gray-600);font-size:14px}
-    .title{font-weight:800;color:var(--gray-800)}
-    .btn{appearance:none;border:0;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
-    .btn-primary{background:linear-gradient(90deg,var(--blue-400),var(--mint-400));color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.25)}
-    .btn-plain{background:#f3f7ff;color:#1e3a8a}
-    .row{display:flex;gap:10px;align-items:center}
-    .row-wrap{display:flex;flex-wrap:wrap;gap:12px}
-    .field{width:100%;padding:10px 12px;border:2px solid var(--mint-200);border-radius:12px}
-    .tag{display:inline-flex;align-items:center;gap:6px;background:var(--mint-50);border:1px solid var(--mint-200);color:#0f766e;padding:6px 10px;border-radius:999px}
-    .badge{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:6px 10px;border-radius:12px}
-    .list{margin:0;padding-left:18px}
-    .list li{margin:6px 0;color:var(--gray-600)}
-
-    /* Home */
-    .home-emoji{width:88px;height:88px;border-radius:999px;background:linear-gradient(90deg,var(--blue-400),var(--mint-400));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 28px rgba(16,185,129,.28);margin:0 auto 10px}
-    .usage-big{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:34px;color:#0ea5a4}
-
-    /* Stretch guide cards */
-    .guide-grid{display:grid;grid-template-columns:1fr;gap:12px}
-    .guide{border:2px solid var(--mint-200);border-radius:18px}
-    .guide h3{margin:0 0 6px;color:var(--blue-600)}
-
-    /* Chat */
-    .chat-box{height:240px;overflow:auto;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:16px;padding:10px;box-shadow:inset 0 1px 6px rgba(0,0,0,.04)}
-    .bubble{display:inline-block;padding:8px 12px;border-radius:18px;margin:4px 0}
-    .from-user{background:var(--blue-400);color:#fff}
-    .from-bot{background:var(--mint-100);color:#065f46}
-    .right{text-align:right}
-
-    /* Pomodoro */
-    .circle-wrap{position:relative;width:220px;height:220px;margin:0 auto 10px}
-    .circle-wrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
-    .circle-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-
-    /* Bottom nav */
-    nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--gray-200);padding:8px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-    nav button{background:#fff;border:0;border-radius:12px;padding:8px 6px;color:var(--gray-600);font-weight:700}
-    nav button.active{background:var(--mint-50);border:1px solid var(--mint-200);color:#0f766e}
-
-    @media (min-width:480px){ main{padding:22px} }
+    .circle{width:96px; height:96px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:32px; font-weight:700; margin:0 auto 12px; background:linear-gradient(to right,var(--blue-400),var(--mint-400)); box-shadow:var(--shadow-lg); animation:pulse 1.8s ease-in-out infinite}
+    @keyframes pulse{0%{transform:scale(1)} 50%{transform:scale(1.04)} 100%{transform:scale(1)}}
+    h2{font-size:20px; color:var(--blue-600); margin:0 0 8px}
+    h3{font-size:16px; color:var(--blue-600); margin:0 0 6px}
+    p{color:var(--gray-600); margin:8px 0}
+    .muted{color:var(--gray-400)}
+    .card{background:#fff; border:2px solid var(--mint-200); border-radius:16px; box-shadow:var(--shadow-lg); padding:12px}
+    input[type="time"], input[type="number"], input[type="text"]{border:2px solid var(--mint-300); border-radius:10px; padding:8px 10px}
+    input[type="time"], input[type="text"]{width:100%}
+    .row{display:flex; gap:8px; align-items:center}
+    .row.gap-12{gap:12px}
+    .btn{border:0; border-radius:12px; padding:8px 14px; cursor:pointer}
+    .btn-primary{color:#fff; background:linear-gradient(to right,var(--blue-400),var(--mint-400)); box-shadow:var(--shadow-lg)}
+    .btn-plain{background:#f3f4f6}
+    ul.clean{list-style:none; padding:0; margin:8px 0}
+    ul.clean li{padding:6px 0; border-bottom:1px dashed #e5e7eb}
+    .chips{display:flex; gap:6px; flex-wrap:wrap}
+    .chip{background:#e0f2fe; color:#075985; padding:2px 8px; border-radius:999px; font-size:12px}
+    /* nav */
+    nav{display:flex; justify-content:space-around; align-items:center; padding:8px 0; color:#fff; background:linear-gradient(to right,var(--blue-400),var(--mint-400)); box-shadow:var(--shadow-inset)}
+    nav button{background:transparent; border:0; color:#fff; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer}
+    nav span{font-size:11px}
+    .hidden{display:none !important}
+    .chat{background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; height:240px; padding:10px; overflow:auto; box-shadow:var(--shadow-inset)}
+    .msg{margin:6px 0; display:flex}
+    .msg.user{justify-content:flex-end}
+    .bubble{padding:6px 10px; border-radius:16px; max-width:80%}
+    .bubble.user{background:var(--blue-400); color:#fff}
+    .bubble.bot{background:#d1fae5; color:#065f46}
+    .progress-wrap{position:relative; width:128px; height:128px; margin:0 auto 12px}
+    .progress{position:absolute; inset:0}
+    .progress text{font-family: ui-monospace, SFMono-Regular, Menlo, monospace; fill:var(--blue-600); font-size:20px}
+    .grid{display:grid; grid-template-columns:1fr; gap:12px}
   </style>
 </head>
 <body>
   <div class="app" id="app">
     <header>
       <h1>디지털 밸런스</h1>
-      <span class="usage" id="usageHeader">⏱ 0s</span>
+      <span class="muted">⏱ <span id="usage">0</span>s</span>
     </header>
 
     <main>
-      <!-- HOME -->
-      <section id="page-home" class="page">
-        <div class="center" style="margin:6px 0 14px">
-          <div class="home-emoji">🌱</div>
-          <h2 class="title" style="margin:6px 0">오늘 사용시간</h2>
-          <div class="usage-big" id="usageBig">0s</div>
-          <p class="muted">디지털 밸런스로 건강한 하루를 만들어보세요 💫</p>
+      <!-- 홈 -->
+      <section class="inner center" id="page-home">
+        <div class="circle">📱</div>
+        <h2>오늘 사용시간</h2>
+        <p class="time-big" style="font:700 28px ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--mint-500); margin:4px 0 8px"><span id="usageBig">0</span>s</p>
+        <p>디지털 밸런스로 건강한 하루를 만들어보세요 🌱</p>
+        <div class="chips" style="justify-content:center; margin-top:10px">
+          <span class="chip">집중</span><span class="chip">휴식</span><span class="chip">균형</span>
         </div>
       </section>
 
-      <!-- 알람 설정 -->
-      <section id="page-stretchAlarm" class="page" hidden>
-        <div class="card pad">
-          <h2 class="title" style="color:#0ea5a4;margin-bottom:10px">스트레칭 알람 설정</h2>
-          <div class="row" style="margin-bottom:10px">
-            <input id="alarmInput" type="time" class="field" style="flex:1" />
-            <button id="addAlarmBtn" class="btn btn-primary">추가</button>
-          </div>
-          <ul id="alarmList" class="list"></ul>
-          <p id="noAlarm" class="muted" style="margin-top:6px">⏰ 설정된 알람이 없습니다.</p>
+      <!-- 스트레칭 알람 -->
+      <section class="inner hidden" id="page-alarm">
+        <button class="btn" onclick="go('home')" style="color:var(--blue-600); margin-bottom:8px">← 처음 화면으로</button>
+        <h2 style="color:var(--mint-500)">스트레칭 알람 설정</h2>
+        <div class="row gap-12" style="margin:8px 0 10px">
+          <input type="time" id="alarmInput" />
+          <button class="btn btn-primary" onclick="addAlarm()">추가</button>
         </div>
+        <ul class="clean" id="alarmList"><li class="muted">⏰ 설정된 알람이 없습니다.</li></ul>
       </section>
 
       <!-- 스트레칭 가이드 -->
-      <section id="page-stretchGuide" class="page" hidden>
-        <h2 class="title" style="color:#2563eb;margin:8px 0 12px">효과적인 스트레칭 방법</h2>
-        <div class="guide-grid" id="guideGrid"></div>
+      <section class="inner hidden" id="page-stretch">
+        <button class="btn" onclick="go('home')" style="color:var(--blue-600); margin-bottom:8px">← 처음 화면으로</button>
+        <h2>효과적인 스트레칭 방법</h2>
+        <div class="grid" id="stretchWrap"></div>
       </section>
 
       <!-- 포모도로 타이머 -->
-      <section id="page-pomodoro" class="page" hidden>
-        <div class="center card pad">
-          <h2 class="title" style="color:#0ea5a4;margin-bottom:10px">포모도로 타이머</h2>
-          <div class="circle-wrap">
-            <svg width="220" height="220">
-              <circle cx="110" cy="110" r="100" stroke="#e0f7fa" stroke-width="10" fill="none"></circle>
-              <circle id="pomoArc" cx="110" cy="110" r="100" stroke="#3b82f6" stroke-width="12" fill="none" stroke-linecap="round"></circle>
-            </svg>
-            <div class="circle-time">
-              <div id="pomoTime" style="font:700 24px ui-monospace,Menlo,Consolas,monospace;color:#2563eb">25:00</div>
-              <div id="pomoPercent" class="muted" style="margin-top:4px">100%</div>
-            </div>
-          </div>
-          <div class="row center" style="justify-content:center;margin:8px 0 10px">
-            <input id="pomoMinutes" type="number" min="1" max="60" value="25" class="field" style="width:72px;text-align:center" />
-            <span class="muted">분</span>
-          </div>
-          <div class="row center" style="justify-content:center">
-            <button id="pomoToggle" class="btn btn-primary">시작</button>
-            <button id="pomoReset" class="btn btn-plain">초기화</button>
-          </div>
+      <section class="inner hidden" id="page-pomodoro">
+        <button class="btn" onclick="go('home')" style="color:var(--blue-600); margin-bottom:8px">← 처음 화면으로</button>
+        <h2 style="color:var(--mint-500)">포모도로 타이머</h2>
+        <div class="progress-wrap">
+          <svg class="progress" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="45" stroke="#e0f7fa" stroke-width="8" fill="none"></circle>
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="100%" stop-color="#5eead4"/>
+              </linearGradient>
+            </defs>
+            <circle id="arc" cx="50" cy="50" r="45" stroke="url(#grad)" stroke-width="8" fill="none" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text id="remaining" x="50" y="55" text-anchor="middle">25:00</text>
+          </svg>
+        </div>
+        <div class="row" style="justify-content:center; margin:10px 0">
+          <input type="number" id="minutesInput" min="1" max="60" value="25" style="width:68px; text-align:center" />
+          <span class="muted">분</span>
+        </div>
+        <div class="center" style="display:flex; justify-content:center; gap:8px">
+          <button class="btn btn-primary" id="toggleRun">시작</button>
+          <button class="btn btn-plain" id="resetBtn">초기화</button>
         </div>
       </section>
 
       <!-- AI 상담 -->
-      <section id="page-aiChat" class="page" hidden>
-        <div class="pad">
-          <h2 class="title" style="color:#2563eb;margin-bottom:8px">AI 정신 상담</h2>
-          <div id="chatBox" class="chat-box card"></div>
-          <div class="row" style="margin-top:10px">
-            <input id="chatInput" type="text" class="field" placeholder="지금 기분이 어때요?" />
-            <button id="chatSend" class="btn btn-primary">전송</button>
-          </div>
+      <section class="inner hidden" id="page-chat">
+        <button class="btn" onclick="go('home')" style="color:var(--blue-600); margin-bottom:8px">← 처음 화면으로</button>
+        <h2>AI 정신 상담</h2>
+        <div class="chat" id="chatBox" aria-live="polite"></div>
+        <div class="row" style="margin-top:8px">
+          <input type="text" id="msgInput" placeholder="지금 기분이 어때요?" />
+          <button class="btn btn-primary" onclick="sendMessage()">전송</button>
         </div>
       </section>
     </main>
 
     <nav>
-      <button data-page="home" class="active">알림판</button>
-      <button data-page="stretchGuide">스트레칭</button>
-      <button data-page="pomodoro">타이머</button>
-      <button data-page="stretchAlarm">알람</button>
-      <button data-page="aiChat">상담</button>
+      <button onclick="go('home')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg><span>홈</span></button>
+      <button onclick="go('alarm')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>알람</span></button>
+      <button onclick="go('stretch')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>스트레칭</span></button>
+      <button onclick="go('pomodoro')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>타이머</span></button>
+      <button onclick="go('chat')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>상담</span></button>
     </nav>
   </div>
 
   <script>
-    // ------- 상태 -------
-    const state = {
-      activePage: 'home',
-      usageTime: 0, // seconds
-      alarms: [],
-      chat: [],
-      pomo: { minutes: 25, time: 25*60, running: false, interval: null }
+    // -------- Navigation
+    const pages = {
+      home: document.getElementById('page-home'),
+      alarm: document.getElementById('page-alarm'),
+      stretch: document.getElementById('page-stretch'),
+      pomodoro: document.getElementById('page-pomodoro'),
+      chat: document.getElementById('page-chat'),
     };
+    function go(name){ for (const k in pages){ pages[k].classList.toggle('hidden', k!==name);} }
 
-    // ------- 공통 DOM -------
-    const usageHeader = document.getElementById('usageHeader');
-    const usageBig = document.getElementById('usageBig');
-
-    // ------- 사용시간 타이머 -------
-    setInterval(() => { state.usageTime += 1; renderHeader(); if(state.activePage==='home') renderHome(); }, 1000);
-
-    function formatTime(sec){
-      const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
-      if(h>0) return `${h}h ${m}m ${s}s`;
-      if(m>0) return `${m}m ${s}s`;
-      return `${s}s`;
+    // -------- Usage time (pause when tab hidden)
+    const usageEl = document.getElementById('usage');
+    const usageBigEl = document.getElementById('usageBig');
+    let usageTime = 0;
+    let usageTimer = null;
+    function startUsage(){
+      if(usageTimer) return;
+      usageTimer = setInterval(()=>{ usageTime++; usageEl.textContent = usageTime; usageBigEl.textContent = usageTime; }, 1000);
     }
+    function stopUsage(){ if(usageTimer){ clearInterval(usageTimer); usageTimer = null; } }
+    document.addEventListener('visibilitychange', ()=>{ document.hidden ? stopUsage() : startUsage(); });
+    startUsage();
 
-    function renderHeader(){ usageHeader.textContent = `⏱ ${state.usageTime}s`; }
-    function renderHome(){ usageBig.textContent = formatTime(state.usageTime); }
-
-    // ------- 네비게이션 -------
-    document.querySelectorAll('nav button').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const page = btn.dataset.page;
-        if(!page) return;
-        state.activePage = page;
-        document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b===btn));
-        document.querySelectorAll('.page').forEach(sec=>sec.hidden = (sec.id !== `page-${page}`));
-        // 섹션별 초기 렌더
-        if(page==='stretchGuide') renderStretchGuide();
-        if(page==='stretchAlarm') renderAlarm();
-        if(page==='aiChat') renderChat();
-        if(page==='pomodoro') renderPomodoro(true);
-        if(page==='home') renderHome();
-      })
-    });
-
-    // ------- 알람 -------
-    const alarmInput = document.getElementById('alarmInput');
-    const addAlarmBtn = document.getElementById('addAlarmBtn');
-    const alarmList = document.getElementById('alarmList');
-    const noAlarm = document.getElementById('noAlarm');
-
-    addAlarmBtn.addEventListener('click',()=>{
-      if(!alarmInput.value) return;
-      state.alarms.push(alarmInput.value);
-      alert(`스트레칭 알람이 ${alarmInput.value}에 설정되었습니다.`);
-      alarmInput.value='';
-      renderAlarm();
-    });
-
-    function renderAlarm(){
-      alarmList.innerHTML = '';
-      if(state.alarms.length===0){ noAlarm.style.display='block'; return; }
-      noAlarm.style.display='none';
-      state.alarms.forEach((a, i)=>{
-        const li=document.createElement('li');
-        li.textContent = `⏰ ${a}`;
-        alarmList.appendChild(li);
-      })
-    }
-
-    // ------- 스트레칭 가이드 -------
+    // -------- Stretch guide content
     const stretches = {
-      wrist:[
-        '양 팔을 앞으로 쭉 뻗고 손바닥을 아래로 향하게 합니다.',
-        '한 손으로 반대 손가락을 잡아 천천히 몸 쪽으로 당겨줍니다.',
-        '손목 안쪽 근육이 늘어나는 느낌이 들면 15초간 유지합니다.',
-        '반대 손도 동일하게 반복합니다.'
-      ],
-      neck:[
-        '바르게 앉은 상태에서 어깨를 내리고 고개를 천천히 오른쪽으로 기울입니다.',
-        '손으로 머리를 살짝 눌러 목 옆 근육을 스트레칭합니다.',
-        '15초 유지 후 왼쪽도 동일하게 반복합니다.',
-        '마지막으로 고개를 앞뒤로 천천히 돌려 근육을 풀어줍니다.'
-      ],
-      shoulder:[
-        '한쪽 팔을 가슴 앞으로 가져와 반대손으로 팔꿈치를 감싸줍니다.',
-        '팔을 몸 쪽으로 천천히 당기며 어깨 뒤쪽 근육을 스트레칭합니다.',
-        '15초간 유지 후 반대쪽도 반복합니다.',
-        '끝으로 양팔을 뒤로 깍지 끼고 가슴을 열어줍니다.'
-      ]
+      wrist:["팔을 앞으로 뻗고 손가락을 천천히 몸 쪽으로 당깁니다.","15초 유지 후 반대쪽 반복.","손목을 천천히 돌리며 이완시킵니다."],
+      neck:["고개를 오른쪽, 왼쪽으로 천천히 기울입니다.","각 방향 15초씩 유지합니다.","어깨를 내리고 목의 긴장을 풀어줍니다."],
+      shoulder:["한쪽 팔을 반대편으로 당겨줍니다.","15초 후 반대쪽 반복.","양 어깨를 천천히 돌리며 근육을 풀어줍니다."]
     };
-
-    function renderStretchGuide(){
-      const grid=document.getElementById('guideGrid');
-      if(grid.dataset.rendered==='1') return; // 1회만 생성
-      const entries = [ ['손목 스트레칭','wrist'], ['목 스트레칭','neck'], ['어깨 스트레칭','shoulder'] ];
-      entries.forEach(([label,key])=>{
-        const card=document.createElement('div');
-        card.className='guide card pad';
-        const h=document.createElement('h3'); h.textContent=label; card.appendChild(h);
-        const ul=document.createElement('ul'); ul.className='list';
-        stretches[key].forEach(s=>{ const li=document.createElement('li'); li.textContent=s; ul.appendChild(li); })
-        card.appendChild(ul);
-        grid.appendChild(card);
-      });
-      grid.dataset.rendered='1';
+    const stretchWrap = document.getElementById('stretchWrap');
+    for (const [key, steps] of Object.entries(stretches)){
+      const titles = {wrist:'손목 스트레칭', neck:'목 스트레칭', shoulder:'어깨 스트레칭'};
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h3>${titles[key]}</h3><ul>` + steps.map(s=>`<li>${s}</li>`).join('') + `</ul>`;
+      stretchWrap.appendChild(card);
     }
 
-    // ------- 채팅 -------
+    // -------- Alarm list (demo only)
+    const alarmInput = document.getElementById('alarmInput');
+    const alarmList = document.getElementById('alarmList');
+    const alarms = [];
+    function addAlarm(){
+      const v = alarmInput.value.trim();
+      if(!v){ return; }
+      alarms.push(v);
+      alarmInput.value = '';
+      renderAlarms();
+      alert(`스트레칭 알람이 ${v}에 설정되었습니다.`);
+    }
+    function renderAlarms(){
+      if(alarms.length===0){ alarmList.innerHTML = '<li class="muted">⏰ 설정된 알람이 없습니다.</li>'; return; }
+      alarmList.innerHTML = alarms.map(a=>`<li>⏰ ${a}</li>`).join('');
+    }
+
+    // -------- AI chat (toy)
     const chatBox = document.getElementById('chatBox');
-    const chatInput = document.getElementById('chatInput');
-    const chatSend = document.getElementById('chatSend');
-
-    chatSend.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(); });
-
+    const msgInput = document.getElementById('msgInput');
+    const chat = [];
+    function addMsg(from, text){
+      chat.push({from, text});
+      const row = document.createElement('div');
+      row.className = 'msg '+(from==='user'?'user':'bot');
+      const b = document.createElement('div');
+      b.className = 'bubble '+(from==='user'?'user':'bot');
+      b.textContent = text; row.appendChild(b); chatBox.appendChild(row); chatBox.scrollTop = chatBox.scrollHeight;
+    }
     function sendMessage(){
-      const txt = chatInput.value.trim();
-      if(!txt) return;
-      state.chat.push({from:'user',text:txt});
-      chatInput.value='';
-      renderChat();
-      setTimeout(()=>{
-        state.chat.push({from:'bot', text:'오늘도 수고했어요 🌿 마음이 답답할 때는 잠깐 심호흡을 해보세요.'});
-        renderChat();
-      }, 700);
+      const t = msgInput.value.trim(); if(!t) return; msgInput.value=''; addMsg('user', t);
+      setTimeout(()=>{ addMsg('bot', '오늘도 수고했어요 🌿 잠깐 눈을 감고 심호흡 해볼까요?'); }, 700);
     }
 
-    function renderChat(){
-      chatBox.innerHTML='';
-      state.chat.forEach(c=>{
-        const wrap=document.createElement('div');
-        wrap.className = c.from==='user' ? 'right' : '';
-        const b=document.createElement('span');
-        b.className = 'bubble ' + (c.from==='user' ? 'from-user' : 'from-bot');
-        b.textContent = c.text;
-        wrap.appendChild(b);
-        chatBox.appendChild(wrap);
-      });
-      chatBox.scrollTop = chatBox.scrollHeight;
+    // -------- Pomodoro
+    const arc = document.getElementById('arc');
+    const remaining = document.getElementById('remaining');
+    const minutesInput = document.getElementById('minutesInput');
+    const toggleRun = document.getElementById('toggleRun');
+    const resetBtn = document.getElementById('resetBtn');
+    const R = 45, C = 2*Math.PI*R; arc.setAttribute('stroke-dasharray', C);
+    let customMinutes = +minutesInput.value; let total = customMinutes*60; let time = total; let running = false; let tmr=null;
+
+    function draw(){
+      const m = Math.floor(time/60), s = (time%60).toString().padStart(2,'0');
+      remaining.textContent = `${m}:${s}`;
+      const ratio = 1 - time/total; arc.setAttribute('stroke-dashoffset', ratio*C);
     }
+    function tick(){ if(time>0){ time--; draw(); } else { stopPomodoro(); }}
+    function startPomodoro(){ if(running) return; running = true; toggleRun.textContent='일시정지'; tmr = setInterval(()=>{ if(!document.hidden) tick(); }, 1000); }
+    function stopPomodoro(){ running=false; toggleRun.textContent='시작'; clearInterval(tmr); tmr=null; }
+    function resetPomodoro(){ stopPomodoro(); customMinutes = +minutesInput.value || 25; total = customMinutes*60; time = total; draw(); }
 
-    // ------- 포모도로 -------
-    const pomoMinutes = document.getElementById('pomoMinutes');
-    const pomoToggle = document.getElementById('pomoToggle');
-    const pomoReset  = document.getElementById('pomoReset');
-    const pomoTimeEl = document.getElementById('pomoTime');
-    const pomoPercentEl = document.getElementById('pomoPercent');
-    const pomoArc = document.getElementById('pomoArc');
+    toggleRun.addEventListener('click', ()=> running ? stopPomodoro() : startPomodoro());
+    resetBtn.addEventListener('click', resetPomodoro);
+    minutesInput.addEventListener('change', resetPomodoro);
+    draw();
 
-    function setPomoMinutes(m){ state.pomo.minutes=m; state.pomo.time=m*60; updatePomoArc(); renderPomodoro(); }
-
-    pomoMinutes.addEventListener('change',()=>{
-      const val = Math.min(60, Math.max(1, Number(pomoMinutes.value||25)));
-      pomoMinutes.value = val;
-      setPomoMinutes(val);
-    });
-
-    pomoToggle.addEventListener('click',()=>{
-      state.pomo.running = !state.pomo.running;
-      if(state.pomo.running){
-        pomoToggle.textContent='일시정지';
-        state.pomo.interval = setInterval(()=>{
-          state.pomo.time = Math.max(0, state.pomo.time-1);
-          renderPomodoro();
-          if(state.pomo.time===0){ clearInterval(state.pomo.interval); state.pomo.running=false; pomoToggle.textContent='시작'; }
-        },1000);
-      }else{
-        clearInterval(state.pomo.interval); pomoToggle.textContent='시작';
-      }
-    });
-
-    pomoReset.addEventListener('click',()=>{ setPomoMinutes(state.pomo.minutes); if(state.pomo.running){ clearInterval(state.pomo.interval); state.pomo.running=false; pomoToggle.textContent='시작'; } });
-
-    function updatePomoArc(){
-      const r=100, c=2*Math.PI*r;
-      const percent = state.pomo.time/(state.pomo.minutes*60);
-      pomoArc.setAttribute('stroke-dasharray', c);
-      pomoArc.setAttribute('stroke-dashoffset', c*(1-percent));
-    }
-
-    function renderPomodoro(skipArc){
-      const m = Math.floor(state.pomo.time/60), s = state.pomo.time%60;
-      const percent = Math.round((state.pomo.time/(state.pomo.minutes*60))*100);
-      pomoTimeEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
-      pomoPercentEl.textContent = `${percent}%`;
-      if(!skipArc) updatePomoArc();
-    }
-
-    // 초기 렌더
-    renderHeader(); renderHome(); renderStretchGuide(); renderAlarm(); renderChat(); renderPomodoro();
+    // Icons (inline SVG via functions) are attached below
+    function homeIcon(){ return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>'; }
+    function bellIcon(){ return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'; }
+    function activityIcon(){ return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'; }
+    function clockIcon(){ return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'; }
+    function chatIcon(){ return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>'; }
   </script>
 </body>
 </html>
